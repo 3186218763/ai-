@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone *)",
+      "Bash(mkdir -p \"e:/降重/.claude/skills\")",
+      "Bash(mv \"e:/降重/thesis-optimizer\" \"e:/降重/.claude/skills/\")",
+      "Bash(python3)"
+    ]
+  }
+}

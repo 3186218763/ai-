@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(python scripts/word_tool.py doctor)",
+      "Bash(ls -d \"C:/Users/song1/.claude/skills\" 2>/dev/null && echo \"EXISTS\" || echo \"NOT_EXISTS\")",
+      "Read(//c/Users/song1/.claude/skills/**)",
+      "Bash(rm -rf \"C:/Users/song1/.claude/skills/word-power-tools\" && git clone https://github.com/chi111i/word-power-tools.git \"C:/Users/song1/.claude/skills/word-power-tools\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://github.com/chi111i/thesis-optimizer\")",
+      "Skill(word-power-tools)",
+      "Skill(word-power-tools:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\song1\\.claude\\skills\\word-power-tools"
+    ]
+  }
+}

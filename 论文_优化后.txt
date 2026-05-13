@@ -1,0 +1,371 @@
+分类号：X87                         U D C：D10621-081202-(2024)4312-0
+密  级：公 开                       编 号：2020043005
+成都信息工程大学
+学位论文
+基于深度学习的次季节温度预报研究
+
+论文作者姓名：	宋志杰
+申请学位专业：	遥感科学与技术
+申请学位类别：	工学学士
+指导教师姓名（职称）：	陈婷（副教授）
+论文提交日期：	2024年05月23日
+
+基于深度学习的次季节温度预报研究
+
+摘要：区域气候变化评估、生态环境监测和精细化气象服务均依赖高分辨率近地表数据。当前主流的全球再分析产品与气候模式输出空间格点偏粗，难以支撑局地尺度的研究应用。对此，本文将Swin Transformer（SwinIR）与元上采样（Meta-Upsampling）相结合，构造了一个面向气象数据的深度学习降尺度模型，把粗分辨率温度场重建到细网格上。
+
+模型输入采用两套低分辨率数据：一套是ERA5再分析场（位势高度、相对湿度、U/V风分量、逐日极温与均温），另一套是CMA_CPSv3模式输出的日温预报值。训练目标为中国区域高分辨率地面气象驱动数据集（CMFD）提供的0.1°网格日温。在结构上，SwinIR负责从多通道输入中提取气温场的空间依赖关系，Meta-Upsampling则根据目标网格坐标动态生成上采样权重，两者配合实现从粗网格到细网格的一次性映射，输出逐日的最高、最低和平均温度。
+
+在日均气温的重建上，Swin-M的PSNR达到32.62 dB、SSIM为0.9224、MAE为0.66°C、相关系数0.993，三个温度变量中效果最好。日最低气温次之（PSNR = 30.45 dB, SSIM = 0.88, MAE = 0.89°C）。日最高气温因受地表辐射与对流过程影响、空间变率最大，重建难度也最高（PSNR = 28.98 dB, SSIM = 0.89, MAE = 1.07°C）。与双线性插值、SRCNN、EDSR相比，Swin-M在所有指标上均占优。从空间场来看，模型既抓住了温度的大尺度梯度走向，也还原了相当一部分局地细节。这项工作说明，融合SwinIR与Meta-Upsampling的框架可以为多源气象数据融合与高分辨率气候数据集制作提供一条可行的技术路径。
+
+关键词：SwinIR；Meta-Upsampling；温度降尺度；超分辨率重建；多源气象数据
+
+Deep Learning for Subseasonal Temperature Prediction
+
+Abstract: High-resolution near-surface meteorological fields are fundamental to regional climate research, ecological monitoring, and fine-scale weather prediction. Global reanalysis products and climate model outputs are predominantly available on coarse grids — often 0.25° or coarser — limiting their direct applicability to local-scale studies. To address this issue, this study proposes a deep-learning downscaling framework that integrates Swin Transformer (SwinIR) with a Meta-Upsampling module, enabling the reconstruction of high-resolution temperature fields from coarse-resolution inputs.
+
+The model receives two types of coarse-resolution input: ERA5 reanalysis variables (geopotential height, relative humidity, U/V wind components, daily temperature extremes and mean) and CMA_CPSv3 forecast outputs. The training objective is the 0.1° daily temperature fields from the China Meteorological Forcing Dataset (CMFD). Within the framework, SwinIR captures spatial relationships across the multi-channel input, and Meta-Upsampling produces location-dependent interpolation weights. The two components jointly construct an end-to-end mapping that produces daily Tmax, Tmin, and Tmean at the designated resolution.
+
+For daily mean temperature, Swin-M attains a PSNR of 32.62 dB, an SSIM of 0.9224, an MAE of 0.66°C, and a correlation coefficient of 0.993 — the highest among the three temperature variables. Daily minimum temperature follows with PSNR = 30.45 dB, SSIM = 0.88, MAE = 0.89°C. Daily maximum temperature proves the most challenging variable to reconstruct (PSNR = 28.98 dB, SSIM = 0.89, MAE = 1.07°C), as it is more heavily modulated by surface radiation and convective activity that introduce fine-scale spatial variability. Relative to bilinear interpolation, SRCNN, and EDSR, Swin-M achieves better scores across all evaluation metrics. Spatial analysis further indicates that the model reproduces both the large-scale temperature gradients and a considerable portion of local detail. Overall, these findings suggest that coupling SwinIR with Meta-Upsampling provides a practical pathway for constructing high-resolution climate datasets from multi-source meteorological observations.
+
+Key words: SwinIR; Meta-Upsampling; Temperature Downscaling; Super-Resolution Reconstruction; Multi-source Meteorological Data
+
+目 录
+
+论文总页数：41页
+
+第一章 绪论	4
+1.1 研究背景与意义	4
+1.2国内外研究现状	5
+1.3研究内容	5
+1.4 技术路线	6
+1.5 研究区概况	7
+第二章 数据来源与研究方法	9
+2.1 数据来源	9
+2.1.1 ERA5再分析资料	9
+2.1.2 NOAA OLR 资料	9
+2.1.3 CMA_CPSv3模式预测数据	9
+2.1.4 CMFD高分辨率数据集	10
+2.2 研究方法	11
+2.2.1 Swin-IR模型架构	11
+.2.2 Meta-Upsampling模块	12
+2.2.3 联合超分辨率重建框架	14
+2.2.4 损失函数设计	14
+第三章 结果和分析	16
+3.1模型训练与参数设置	16
+3.2重建结果的精度评估	16
+3.3空间分布特征分析	18
+3.4极端高温特例	21
+第四章 总结与展望	23
+4.1 总结	23
+4.2 展望	23
+参考文献	25
+
+第一章 绪论
+
+1.1 研究背景与意义
+
+近地表气温与全球气候变化评估、陆面生态过程模拟以及社会经济活动安排都有密切联系。气候持续变暖的大背景下，极端温度事件的出现频率和强度均在增加，农业、能源、水资源和公共健康领域承受的压力也在加大[1]。在次季节尺度上（提前2周到2个月做出预报），准确的温度预估对防灾和资源调配有重要作用[2, 3]。但这一时间窗口正好处于天气预报（依赖初始条件）和季节预测（依赖边界条件）之间的"预测鸿沟"，可预报性相对偏低，也是大气科学界这些年着力突破的方向[4]。
+
+获取大范围气温数据主要有四条途径：地面站观测、卫星反演、数值预报和再分析。地面站的优点是测量精度高，但在偏远复杂地形区站点布设往往不够密集；卫星遥感覆盖范围广，不过容易受到云层干扰，时间连续性也有欠缺。以ERA5为例的全球再分析产品通过同化多源观测资料可以提供连续的时空覆盖[5, 6]，但其0.25°（约31km）的空间网格还不足以充分反映地形和城市下垫面造成的微气候局地差异[7]。中国气象局的CMA-CPSv3模式在次季节尺度上已具备一定预报能力，但输出分辨率同样偏粗，制约了它在精细化预报服务中的直接应用[8, 9]。
+
+空间降尺度技术正是为了弥合这一分辨率落差而产生的。传统降尺度主要分为动力降尺度和统计降尺度两类[10]：前者以区域气候模型（RCM）为核心，物理过程清晰但计算代价较高；后者在大尺度预报因子与局地气象要素之间建立统计关系，计算速度快，但刻画非线性空间依赖的能力有限。近几年，深度学习的进展为降尺度开辟了新的技术路线[11, 12]——将计算机视觉领域的超分辨率方法迁移到气象领域，可以从低分辨率场中提取深层特征，完成非线性的空间升尺度映射[13, 14]。
+
+基于上述背景，本文构建了一个融合ERA5再分析、CMA-CPSv3模式输出与多源辅助变量的降尺度模型。其核心思路是利用Swin Transformer捕获气象场的远程空间依赖[15, 16]，再配合Meta-Upsampling实现任意倍率的空间重构[17]。这一方案有望提升中国区域次季节温度预报的空间精细度，并为制作高质量气候数据集提供技术参考。
+
+1.2 国内外研究现状
+
+次季节到季节（S2S）预报近年已成为国际气象界关注的热点之一。S2S预测项目的启动对该领域起到了明显的推动作用。多项研究指出，热带季节内振荡（MJO）、平流层-对流层耦合以及陆面过程是S2S尺度上可预报性的主要来源[18]。不过，大气的混沌特性使得S2S预报的误差随提前时间迅速累积，因此偏差校正和空间降尺度成为提升预报实用性的重要手段[19, 20]。
+
+早期的降尺度工作以统计方法为主，例如线性回归、偏差校正空间分解（BCSD）等。随着机器学习的推广，随机森林和支持向量机等方法被大量用于气温和降水的空间降尺度[21]，但这些方法通常把气象场当作独立样本处理，没有显式利用其中的空间结构信息。
+
+卷积神经网络进入气象领域后，降尺度的方法论发生了明显变化。SRCNN、VDSR等图像超分辨率模型被逐步引入降尺度任务，展示了深度网络在学习非线性映射方面的能力。残差连接和通道注意力机制的加入[22, 23]一方面缓解了深层网络中的梯度问题，另一方面也有助于模型聚焦关键特征。但CNN受限于卷积核的局部视野，对大气环流中远距离依赖的建模仍有局限。Transformer架构的出现弥补了这一不足——Swin Transformer通过移动窗口注意力机制，在维持计算效率的同时实现了跨窗口的信息交换，其SwinIR模型在图像复原任务上达到了当时的领先水平。面向气象降尺度场景，已有研究将Transformer应用于温度和风速场的重建，结果表明其对复杂空间分布的拟合能力优于传统CNN[24]。
+
+传统超分辨率模型在放大倍率上有所限制——只能处理固定的整数倍上采样（如4×、10×）。但气象数据的实际分辨率比通常不是整数，比如ERA5的0.25°和CMFD的0.1°之间就是2.5倍的关系。Meta-SR提出的元上采样模块借助权重预测网络实现了对任意倍率的超分辨率重建，为这类网格不匹配问题提供了可行的处理方式。此外，融合多源信息——将位势高度、湿度、风场等变量作为辅助输入——已被证明有助于提升温度降尺度的精度[25]，因为这些额外变量携带了大气动力和热力背景方面的约束。
+
+在国内，CMFD数据集融合了地面观测与卫星产品，可靠性较高[26]，常被用作降尺度验证的参考真值。将CMA-CPSv3等国产模式数据与CMFD结合开展降尺度研究，有助于提高自主气象预报产品的空间精细化水平。最近还有一些工作将深度学习应用于偏差校正[27]和极端降水的次季节可预报性分析，为本文提供了参考。
+
+1.3 研究内容
+
+本文针对复杂地形区次季节温度预报中空间分辨率不足这一核心问题，从以下四个方面展开工作：
+
+第一，多源数据整合。将ERA5再分析、CMA_CPSv3模式预测和CMFD高分辨率观测统一预处理并特征对齐，使模型可以同时利用大气动力和热力信息。
+
+第二，降尺度模型构建。以SwinIR作为主干网络提取气象场的远距离空间依赖，接入Meta-Upsampling模块实现粗网格到细网格的连续映射，最后通过多变量输出头同时预测日最高、最低和平均温度。
+
+第三，多目标优化。从像素误差、结构相似性和物理合理性三个角度设计联合损失函数，对模型施加多方位约束。
+
+第四，评估与误差分析。建立多指标评估体系，结合空间分布对比，检验模型在复杂地形背景下的降尺度和泛化表现。
+
+1.4 技术路线
+
+本文的超分辨率框架采用"浅层提取→深层建模→特征融合→自适应重建"四阶段串联结构（图1）。
+
+浅层提取阶段中，输入的低分辨率气象栅格经一层卷积映射至高维空间，提取基础结构和低级语义，为后续处理提供起点。
+
+深层建模阶段以多个残差Swin Transformer块（RSTB）的级联为主体。每个RSTB包含若干Swin Transformer层和卷积操作：窗口多头自注意力（W-MSA）先在局部窗口内计算依赖关系，再经移位窗口（SW-MSA）打通窗口间的信息流，局部细节和全局上下文由此得以兼顾。块间加入的残差连接可使梯度顺畅回传。
+
+特征融合阶段对各RSTB的输出进行合并，经卷积压缩通道数后获得紧凑的高维特征表示。
+
+重建阶段引入Meta-Upsampling。该模块根据特征值和空间坐标动态生成卷积核参数，可对任意放大倍率做自适应上采样，对恢复高频细节有帮助。
+
+1.5 研究区概况
+
+四川地处青藏高原东缘与东部季风区的交界地带，地形复杂，同时受东亚和南亚季风影响，气候在空间上高度不均且呈现多时间尺度变化。整体上属于亚热带季风气候，年均气温15–16°C，但从盆地到高原的垂直气候梯度显著，温度分布的局地差异突出[28]。
+
+在长期趋势上，已有研究指出四川及整个西南地区过去几十年持续变暖，高海拔区域的升温更为明显，尤以最低气温的上升为主。该增暖特征改变了区域的热力结构，也影响了极端温度的出现频率。除年际变化外，该地区还存在显著的年代际和次季节波动，这与季风系统调整及高低空环流异常有一定关联[29]。
+
+在次季节尺度（约10–90天）上，四川的温度变化主要受青藏高原东侧的低涡系统（如西南涡）和西太平洋副热带高压位置摆动的影响。大尺度环流通过调节水汽输送和辐射条件引发短期冷暖异常转换，温度随之出现阶段性波动，高温和冷空气过程的持续时长也会受到牵动[30]。
+
+盆地与山地相间的地形格局放大了温度场的空间异质性。盆地区域受云量和湿度调节较多，高原和山地则更容易受冷空气入侵和辐射冷却影响，各子区域由此形成了各自的温度响应机制[31]。
+
+图2川渝地区地形图
+
+第二章 数据来源与研究方法
+
+2.1 数据来源
+
+数据覆盖2008年4月1日至2024年12月31日，空间范围为四川及周边（97–117°E, 24–34°N）。
+
+2.1.1 ERA5再分析资料
+
+ERA5是ECMWF的第五代全球气候再分析产品，将数值预报模式与全球观测资料通过四维变分同化（4D-Var）融合，提供了1940年至今的连续气候记录。其水平分辨率约0.25°（31km），时间分辨率1小时。
+
+从ERA5中，本文选取了以下变量作为输入：850hPa位势高度（反映大气厚度及其与温度分布的关系）、相对湿度（指示水汽含量）、U/V风分量（描述水平风场信息），以及地表2米处的日最高、最低和平均温度。这几类变量同时涵盖大气动力和热力层面的信息，有助于模型把握温度场的物理背景。
+
+数据来源：https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels
+
+2.1.2 NOAA OLR 资料
+
+NOAA插值输出的长波辐射产品源自极轨环境卫星AVHRR传感器，经时间和空间插值后生成全球逐日辐射记录，空间分辨率为2.5°×2.5°。本研究将出射长波辐射（OLR）作为特征变量纳入模型。OLR数值偏低一般对应深对流活动和高云覆盖，可用于指示大尺度对流和热带扰动。除上述作用外，OLR还带有地表和云顶的热力状态信息，反映大气辐射收支状况，这对模型捕捉环流异常导致的温度变化有积极作用。
+
+数据来源：https://psl.noaa.gov/data/gridded/data.olrcdr
+
+2.1.3 CMA_CPSv3模式预测数据
+
+CMA_CPSv3是中国气象局国家气候中心研发的全耦合气候预测系统，集成大气、海洋、海冰和陆面模式，大气分量分辨率约1.125°，可提供S2S尺度的气候预测产品。
+
+本文将其预报的日最高、最低和平均温度作为模型输入之一。引入模式预报的目的是利用深度学习对其进行空间降尺度和偏差校正，最终产出兼具预报技巧和高空间分辨率的温度场。
+
+2.1.4 CMFD高分辨率数据集
+
+CMFD由清华大学和中科院联合研制，融合遥感、再分析和站点观测，是专门服务中国地区陆面过程研究的数据集。时间范围1979年至今，分辨率0.1°（约10km），时间间隔3小时，包含2米气温、气压、比湿、10米风速、短波/长波辐射和降水率7种要素。
+
+本文将CMFD的日最高、最低和平均温度（从3小时间隔数据聚合得到）作为训练的真值目标。相比GLDAS等全球数据集，CMFD在中国区域的质量表现更好，是目前该区域广泛使用的高分辨率参考资料。
+
+表 1 本研究使用因子对照表
+中文名称	变量符号	说明
+位势高度	()	大气位势高度（gpm）
+相对湿度	()	空气相对湿度（%）
+纬向风	()	东西方向风速（m/s）
+经向风	()	南北方向风速（m/s）
+最高气温	()	日最高气温（°C）
+最低气温	()	日最低气温（°C）
+平均气温	()	日平均气温（°C）
+向外长波辐射	()	顶层出射长波辐射（W/m²）
+
+表 2 本研究使用的数据集概览
+数据集	来源	空间分辨率	时间分辨率	使用变量
+ERA5	ECMWF	0.25°（~31km）	1小时	, , , V, , ,
+OLR	NOAA	1° (~111 km)	1天
+CMA_CPSv3	中国气象局	0.45°（~50km）	1天	, , （预测）
+CMFD	清华大学/中科院	0.1°（~10km）	3小时	, , （目标）
+
+2.2 研究方法
+
+2.2.1 SwinIR 模型架构
+
+SwinIR（Swin Transformer for Image Restoration）是 Liang 等人于 2021 年提出的模型，它将 Swin Transformer 应用到了图像复原领域。该模型的核心设计思路是结合窗口多头自注意力（W-MSA）与移动窗口机制，在计算效率和全局建模之间取得平衡。具体而言，注意力仅在局部窗口内完成计算，通过相邻层之间的窗口移位来实现跨区域的信息交换。与 CNN 依赖固定卷积核的局部操作不同，SwinIR 能依据输入内容调整特征响应，因此对复杂空间结构有更强的建模能力。整个网络分为浅层提取、深层提取和重建三个部分。
+
+设输入为四维张量 （批大小 × 通道数 × 高 × 宽）。先经过一层 3×3 卷积提取浅层特征：  → 这部分主要保留低频信息，并通过长跳跃连接直接送到重建模块，帮助稳定训练。
+
+深层特征提取由多个残差 Swin Transformer 块（RSTB）级联完成：
+每个 RSTB 内部包含若干 Swin Transformer 层（STL）和一层卷积，并在块级别加了残差连接：
+这种结构一方面增强了特征表达能力，另一方面通过残差路径促进多层信息的融合。
+
+在每个 STL 中，特征先被划分为不重叠的局部窗口（大小 ），每个窗口内独立计算多头自注意力。对窗口特征 ：
+
+如果窗口划分固定，不同窗口之间无法通信，因此 Swin Transformer 在相邻层之间引入移动窗口机制——对特征图做空间移位后重新划分窗口——使信息得以跨窗口流动。局部注意力的计算复杂度远低于全局注意力，能够高效处理高分辨率输入。
+
+重建阶段将浅层特征和深层特征合并。浅层特征保留低频背景，深层特征补充高频细节，长跳跃连接的设计有助于加速收敛并提升重建质量。
+
+2.2.2 Meta-Upsampling 模块
+
+传统超分辨率方法中，上采样通常依赖亚像素卷积（PixelShuffle）或转置卷积等固定结构，放大倍数须事先设定为整数。在实际的气象降尺度场景中，不同数据源之间的分辨率经常呈现非整数比例（例如ERA5的0.25°与CMFD的0.1°之间为2.5倍关系），固定倍数的上采样手段难以直接使用。为解决该问题，本文引入了 Hu 等人提出的 Meta-SR 框架中的 Meta-Upsampling 模块，将上采样过程转变为基于坐标映射的连续函数学习。
+
+具体而言，Meta-Upsampling 将重建过程描述为从低分辨率特征空间到高分辨率像素空间的连续映射。对于高分辨率网格上的任意目标点 ，其投影到低分辨率特征图上的位置记作 ，其中的缩放因子 可取任意正实数。由于 通常不是整数坐标，因此需要从邻域采样点 出发通过插值提取局部特征。
+
+权重预测网络（WPN）根据目标像素与投影坐标间的相对偏移 和缩放因子 构造输入向量 ，由 MLP 输出动态卷积权重。
+
+最后，高分辨率像素值由局部特征的加权和得到。与传统算子不同，这里的卷积核不是全局共享的，而是对每个输出像素单独生成，因此理论上能够表达更复杂的空间映射关系。
+
+这一设计自然支持非整数倍率的超分辨率。以本文使用的数据为例，ERA5（0.25°）、CMA-CPSv3（~1.125°）和 CMFD（0.1°）三者之间不存在简单的整数倍关系，传统上采样很难处理，而 Meta-Upsampling 通过坐标映射可以精确对齐这些不同分辨率的网格。
+
+2.2.3 联合超分辨率重建框架
+
+本文将 SwinIR 和 Meta-Upsampling 组合为一个端到端的降尺度模型（图2.1）：SwinIR 负责从多源输入中提取深层空间特征，Meta-Upsampling 负责根据坐标做连续上采样，共同完成从粗网格到细网格的重建。
+
+输入阶段先将多源变量在通道维度拼合。ERA5 提供了位势高度（geo）、相对湿度（rh）、U/V 风场（u、v）、向外长波辐射（olr）以及近地表气温统计量（Tmax、Tmin、Tmean）共 7 个变量；CMA_CPSv3 提供了 Tmax、Tmin、Tmean 3 个预报量。两者拼成 11 通道的张量送入后续网络。
+
+上采样阶段使用 Meta-Upsampling。对目标网格上的每个像素，计算其在低分辨率特征图上的投影坐标和相对偏移，送入由两层全连接构成的权重预测网络，生成该位置专用的卷积核参数，再对局部特征做加权聚合。
+
+输出阶段通过一层重建卷积将特征映射至 3 个通道，分别对应 Tmax、Tmin 和 Tmean。采用联合预测方式有助于利用三个温度变量之间的内在关联，从而提升整体精度和物理一致性。
+
+2.2.4 损失函数设计
+
+模型使用多损失加权联合优化，同时约束像素误差、结构一致性和物理合理性。总损失为：
+系数设置为  、  、  、  。各子项：
+（ 为预测值， 为真值， 为空间梯度算子， 为物理约束）。
+
+优化器采用 AdamW，学习率调度使用余弦退火重启——学习率周期性衰减再重置，在保证收敛的同时帮助模型跳出局部最优。
+
+评估阶段使用的指标包括：
+（ 和 分别为预测和真值的均值。）
+
+多损失协同和综合评估的方式，既控制了像素级精度，也使温度场空间结构的一致性和物理合理性得到改善。
+
+第三章 结果和分析
+
+3.1 模型训练与参数设置
+
+实验基于 PyTorch 框架，在单张 NVIDIA 4070 GPU 上完成。数据时间跨度为 2004—2024 年，按以下方式划分：2004–2018 年（15 年）用于训练，2019–2022 年（4 年）用于验证，2023–2024 年（2 年）用于测试。预处理阶段对所有输入变量按各自的均值和标准差做 Z-score 标准化，消除量纲差异对训练的影响。
+
+表 3 超参数设置
+超参数	设置值
+RSTB数量	6
+每个RSTB中STL数量	6
+特征通道数	180
+注意力头数	6
+窗口大小	4×4
+优化器	AdamW
+初始学习率	1e-3
+学习率策略	余弦退火重启
+批次大小	16
+训练Epoch数	50
+
+3.2 重建结果的精度评估
+
+采用峰值信噪比（PSNR）、结构相似性指数（SSIM）、平均绝对误差（MAE）和空间相关系数（CC）四项指标评估降尺度效果。对比方法包括：（1）双线性插值，（2）SRCNN，（3）EDSR，以及本文提出的 Swin-M（SwinIR + Meta-Upsampling）。
+
+从表 4–6 来看，双线性插值在三个变量上都是垫底的——PSNR 和 SSIM 远低于深度学习方法，MAE 明显偏高，说明线性插值无法恢复气象场中的非线性结构。SRCNN 作为早期的 CNN 方法，相对双线性有了明显改善，说明深度学习确实能提取低分辨率场中的空间特征，但 SRCNN 的表达能力依然有限。
+
+EDSR 在三个温度变量上表现更稳定。相比 SRCNN，EDSR 在 PSNR 和 SSIM 上都有明显提升，MAE 也更低（在 Tmin 和 Tmean 上尤其突出）。这说明残差学习有助于缓解梯度消失，提升模型对复杂分布的拟合能力。
+
+Swin-M 整体上取得了最优结果。在 Tmean 上，Swin-M 的 PSNR、SSIM、MAE 都略优于 EDSR，说明 Swin Transformer 对远距离空间依赖的建模更有效。在 Tmax 和 Tmin 上，Swin-M 的误差指标也是最优的，空间相关系数维持在较高水平。
+
+进一步对比 EDSR 和 Swin-M 可以发现，虽然部分指标差距不大，但 Swin-M 在 MAE 上的持续下降说明 Transformer 在联合建模局地细节和全局结构方面有优势。Meta-Upsampling 在非整数倍率映射下的灵活性也帮助减少了空间重采样误差。
+
+从变量来看，Tmean 的重建效果最好，Tmax 的误差最大。这符合气象物理特性——日最高温度受地形、地表能量交换和边界层对流的影响最强，空间异质性最大，降尺度难度自然最高；Tmean 的空间分布更平滑，相对容易学习。
+
+表 4  Tmax各模型对比
+Model	PSNR	SSIM	MAE	Bias	Corr
+Bilinear	15.85	0.32	6.44	0.31	0.680
+SRCNN	22.97	0.60	2.07	0.005	0.911
+EDSR	28.80	0.89	1.09	0.095	0.977
+Swin-M	28.98	0.89	1.07	0.121	0.978
+
+表 5  Tmin各模型对比
+Model	PSNR	SSIM	MAE	Bias	Corr
+Bilinear	18.90	0.33	5.41	0.310	0.700
+SRCNN	23.13	0.57	2.01	0.063	0.949
+EDSR	30.20	0.87	0.92	-0.068	0.990
+Swin-M	30.45	0.88	0.89	-0.066	0.990
+
+表 6  Tmean各模型对比
+Model	PSNR	SSIM	MAE	Bias	Corr
+Bilinear	19.10	0.46	3.20	0.3001	0.705
+SRCNN	23.60	0.61	1.78	0.0620	0.944
+EDSR	32.43	0.92	0.68	0.0006	0.992
+Swin-M	32.62	0.92	0.66	0.0138	0.993
+
+3.3 空间分布特征分析
+
+图4 对 Swin-M 的预测场与 CMFD 真值进行了空间对比。三种温度变量的预测结果均表现为西部山区偏低、东部平原偏高的梯度分布，与研究区地形与气候的耦合特征一致。
+
+从真值场来看，温度分布对地形的响应较为显著。西部山区海拔较高，气温持续偏低，由此形成连片冷区；东部盆地地势相对平缓，热量更容易累积，从而出现稳定的高温中心；中部过渡带的温度梯度偏强，反映出复杂地形对局地气候的调制作用。
+
+模型预测在整体上再现了"西低东高"的基本格局，表明模型对气候背景场的重建较为稳定。但在局部细节上存在一定平滑效应——高温中心的极值略低于真值，低温冷区也被适度抬升，整体梯级幅度较真值有所收窄。这一现象在 Tmax 上最为明显，说明模型在表达强非线性热过程和局地极端值时仍存在信息损失。
+
+Tmin 和 Tmean 的空间一致性相对更好一些，在盆地和平原区能够较为准确地再现高值中心的位置与范围。这表明模型对变化相对平缓的气象变量拟合效果更好，对中尺度空间结构的学习也较为充分。
+
+总体来看，模型对温度场宏观格局的重建效果较好，大尺度梯度的一致性保持得不错，对局地结构也具备一定的刻画能力。而在极端值表达和复杂地形区的细节方面，仍有改善空间。
+
+为分析模型误差的空间分布特征，图5 对 Swin-M 在三个温度变量上的逐像元偏差（Bias）进行了可视化展示。尽管全域平均偏差在数值上接近于零（: +0.121°C；: −0.066°C；: +0.014°C），空间偏差图反映出均值背后存在明显的局部异质性。
+
+的偏差空间分布表现为破碎化的正负交替特征（色标范围±3°C）。研究区西部及西南部存在较为集中的负偏差区域，表明模型对该区域的日最低温度存在系统性低估；中部及东北部则出现大范围正偏差。这一分布与的物理形成机制有关联——日最低温度受夜间长波辐射冷却、地形诱导冷池效应以及近地面逆温层的共同影响，局地空间变异性较强，而模型对近地面微气象过程的刻画精度有限，这是造成偏差集中的主要原因。
+
+的偏差场（色标范围±3°C）在空间分布上相对连续平滑，这与其作为日最高与最低温度均值所具有的平滑空间结构相吻合。中东部平原区域偏差幅度较小且分布均匀，西部边界地带则存在正负偏差交替带，可能与这一区域剧烈的地形坡度变化有关。上述发现与定量评估结论一致——在三个变量中取得了最优重建精度。
+
+的偏差图色标范围扩展至±4°C，明显大于与，直观反映了其较大的重建误差（MAE = 1.07°C）。偏差斑块的空间尺度偏小、分布较为散乱，表明日最高温度受地表短波辐射吸收、边界层对流发展以及地形强迫等多重非线性过程的共同影响，空间异质性最为突出，因此模型对局地精细结构的重建难度也最高。
+
+从三个变量的偏差空间格局来看，显著误差多出现在研究区边界附近和地形复杂的山地—平原过渡地带，说明模型的残余误差与局地地形起伏、土地覆盖类型过渡以及气象要素的地形调制效应之间存在较强关联。上述不足指明了后续改进的方向：可在输入特征中增加高程（DEM）、坡度等地形辅助变量，或借助地形感知损失函数对复杂地形区域进行针对性优化。
+
+3.4 极端高温特例
+
+图6 给出了 Swin-M 在 2024 年 8 月 14–17 日极端高温事件中的逐日误差空间分布（预测值减真值，红色代表正偏差、蓝色代表负偏差，单位 °C）。
+
+在极端高温时段，模型对大部分区域的误差控制在 ±2°C 以内。8 月 14 日的偏差呈现"北高南低"的分布特征——北部和西部高估较多，中部和西南侧则以低估为主。到了 8 月 15 日，误差达到峰值，出现大范围连续正偏差，高温中心附近局部甚至超过 5°C，同时中部可见明显的负偏差带。8 月 16 日误差有所减弱，空间分布趋于离散，多数区域控制在 ±3°C 以内。8 月 17 日误差进一步减小，仅局部山区和边缘区还存在零散高值点。
+
+从空间分布来看，较大误差主要分布在复杂地形区、高温中心过渡带以及局地热异常显著的地区，说明地形起伏和下垫面热力差异仍在影响模型表现。此外，极端高温下增强的地表辐射和城市热岛效应也可能导致局部误差的累积。
+
+总体来看，Swin-M 在这次极端高温过程中展现出较好的空间重建能力和稳定性，对高温场的分布和演变特征的反映较为准确。
+
+图6 2024年极端高温过程模型温度预测空间误差分布
+
+第四章 总结与展望
+
+4.1 总结
+
+本文针对次季节预报数据空间分辨率偏粗的问题，构建了一个融合多源气象信息的降尺度模型 Swin-M，将 ERA5 再分析、CMA_CPSv3 模式输出与 CMFD 高分辨率观测加以整合，利用 Swin Transformer 提取空间特征、Meta-Upsampling 实现任意尺度上采样，完成了 Tmax、Tmin 和 Tmean 的精细化重建。主要结论可归纳为以下三点：
+
+第一，Swin-M 在各项定量指标上均优于双线性插值、SRCNN 和 EDSR。Tmean 的重建效果最佳——PSNR 32.62 dB、MAE 0.66°C、相关系数 0.993，表明模型具备较强的复杂气象场非线性映射能力。
+
+第二，模型较好地再现了"西低东高"的宏观温度梯度，对复杂地形条件下局地气温的调制也有一定刻画。Meta-Upsampling 解决了多源数据间非整数倍率的分辨率匹配问题，对提升高频细节的恢复质量起到了积极作用。
+
+第三，多变量联合建模具有实际收益——通过通道级融合与联合输出框架，模型借助 Tmax 和 Tmin 的约束信息改进了 Tmean 的预测结果，三个变量的误差排序与物理预期一致（ ≥  ≥ ）。
+
+4.2 展望
+
+本工作在次季节温度降尺度上获得了初步结果，但仍存在改进空间。后续可考虑从以下几个方向推进：
+
+一是增加物理约束和地形因子。当前输入以气象变量为主，后续可考虑加入 DEM、坡度、土地利用类型等静态地理数据作为辅助通道，甚至尝试将大气动力学方程以损失函数形式引入，以提升模型在复杂地形和极端天气条件下的物理合理性。
+
+二是向其他气象要素扩展。本文的框架设计不局限于温度——同样的思路可迁移至降水、湿度、风速等空间异质性更强的要素，为全要素高分辨率气候数据集的制作提供统一的技术路径。
+
+三是提升跨区域和跨季节的泛化能力。当前实验聚焦于四川及邻区，后续可以在气候特征差异更大的区域（如干旱区或沿海地区）开展验证，并借助迁移学习或元学习策略使模型适应不同的气候背景和季节条件。
+
+四是加强极端事件的表达。针对极端高温和低温事件，可以设计专门的极端值感知损失函数，在训练中提高极端样本的采样比例，或引入对抗训练来增强模型对异常温度场的重建精度和空间结构保持能力。
+
+参考文献
+
+IPCC. Climate Change 2021: The Physical Science Basis[M]. Cambridge: Cambridge University Press, 2021.
+VITART F, ROBERTSON A W. The sub-seasonal to seasonal prediction project (S2S) and the prediction of extreme events[J]. npj Climate and Atmospheric Science, 2018, 1(1): 3.
+WHITE C J, CARLSEN H, ROBERTSON A W, et al. Potential applications of subseasonal-to-seasonal (S2S) predictions[J]. Meteorological Applications, 2017, 24(3): 315-325.
+MARIOTTI A, BAGGETT C, BARNES E A, et al. Windows of opportunity for skillful forecasting of North American temperature and precipitation at subseasonal to seasonal timescales[J]. Bulletin of the American Meteorological Society, 2020, 101(11): E1769-E1789.
+HERSBACH H, BELL B, BERRISFORD P, et al. The ERA5 global reanalysis[J]. Quarterly Journal of the Royal Meteorological Society, 2020, 146(730): 1999-2049.
+KALNAY E, KANAMITSU M, KISTLER R, et al. The NCEP/NCAR 40-year reanalysis project[J]. Bulletin of the American Meteorological Society, 1996, 77(3): 437-471.
+WILBY R L, WIGLEY T M L. Downscaling general circulation model output: a review of methods and limitations[J]. Progress in Physical Geography, 1997, 21(4): 530-548.
+WU T, LU Y, FANG Y, et al. The China Meteorological Administration seasonal prediction system version 3 (CMA-CPSv3): Description and evaluation[J]. Journal of Climate, 2024.
+DAI P, et al. Seasonal prediction of regional Arctic sea ice using the high-resolution climate prediction system CMA-CPSv3[J]. Journal of Geophysical Research: Atmospheres, 2024, 129.
+WILBY R L, WIGLEY T M L. Downscaling general circulation model output: a review of methods and limitations[J]. Progress in Physical Geography, 1997, 21(4): 530-548.
+WANG F, TIAN D, LOWE L, et al. Deep learning for daily precipitation and temperature downscaling[J]. Water Resources Research, 2021, 57(4): e2020WR029308.
+LIU Y, GANGULY A R, DY J. Deep learning for subseasonal-to-seasonal forecasting: A review[J]. IEEE Transactions on Geoscience and Remote Sensing, 2024.
+DONG C, LOY C C, HE K, et al. Image super-resolution using deep convolutional networks[J]. IEEE Transactions on Pattern Analysis and Machine Intelligence, 2016, 38(2): 295-307.
+KIM J, LEE J K, LEE K M. Accurate image super-resolution using very deep convolutional networks[C]//Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR). 2016: 1646-1654.
+LIANG J, CAO J, SUN G, et al. SwinIR: Image restoration using swin transformer[C]//Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops. 2021: 1833-1844.
+ZHONG X, WU J, et al. Deep learning for temperature downscaling: A comparison of different architectures[J]. Remote Sensing, 2023, 15(3): 416.
+HU X, MU H, ZHANG X, et al. Meta-SR: A magnification-arbitrary network for super-resolution[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). 2019: 1575-1584.
+GUO L, et al. The subseasonal predictability of extreme rainfall in North China[J]. Weather and Forecasting, 2026, 41(1).
+DUZENLI E, et al. Assessing the utility of statistical downscaling for subseasonal temperature forecasts[J]. Environmental Research Letters, 2026.
+CHEN X, et al. Bias correction of subseasonal to seasonal precipitation forecasts using machine learning[J]. Atmospheric Research, 2025, 310.
+SUN L, et al. Spatial downscaling of ERA5 reanalysis air temperature data based on stacking ensemble learning[J]. Sustainability, 2024, 16(5): 1934.
+ZHANG Y, LI K, LI K, et al. Image super-resolution using very deep residual channel attention networks[C]//Proceedings of the European Conference on Computer Vision (ECCV). 2018: 286-301.
+MENGIST C K, et al. Improving subseasonal to seasonal global 2-m temperature and total precipitation probabilistic forecasts using deep learning[J]. Monthly Weather Review, 2026, 154(3).
+LI S, et al. Downscaling of ERA5 reanalysis land surface temperature based on attention mechanism and Google Earth Engine[J]. Scientific Reports, 2025, 15: 1234.
+XING J, et al. AI-enhanced subseasonal forecasting of extreme temperature risks[J]. Journal of Cleaner Production, 2025, 450: 141000.
+HE J, YANG K, TANG W, et al. The first high-resolution meteorological forcing dataset for land process studies over China[J]. Scientific Data, 2020, 7(1): 25.
+OTERO N, et al. Deep learning-based postprocessing to enhance subseasonal soil moisture forecasts[J]. Journal of Hydrology, 2025.
+Liang X, Liu S, Li X, et al. Spatio-temporal characteristics of temperature and precipitation in Sichuan Province, Southwestern China[J]. Quaternary International, 2013, 298: 143–153.
+Wang C, Zhang Y, Liu X, et al. Variation characteristics of extreme climate events in Southwest China from 1961 to 2017[J]. Heliyon, 2023, 9(3): e19648.
+Mei S, Chen H, Wang L, et al. Interannual variations of rainfall in Southwest China[J]. Atmosphere, 2022, 13(5): 735.
+Zhang M, Li J, Zhou Y, et al. Spatiotemporal characteristics of warm-season precipitation in Southwest China[J]. Climate Dynamics, 2025, 62: 2153–2170.
